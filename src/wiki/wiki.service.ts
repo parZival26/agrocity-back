@@ -22,6 +22,7 @@ export class WikiService {
             commonName: true,
             scientificName: true,
             family: true,
+            imageURL: true,
           }
         }
       );
