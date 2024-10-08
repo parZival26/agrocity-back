@@ -14,29 +14,96 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  username String  @unique
-  password String
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String?
+  username      String         @unique
+  password      String
+  coins         Int            @default(0)
+  plants        PlantUser[]
+  notifications Notification[]
 }
 
 model Plant {
-  id             Int       @id @default(autoincrement())
-  commonName     String    @db.VarChar(255)
-  scientificName String    @db.VarChar(255)
-  family         String    @db.VarChar(255)
-  type           PlantType @default(hierba)
-  lifeCycle      LifeCycle @default(anual)
-  climate        String    @db.VarChar(255)
-  maxHeigth      Float     @db.Float
-  minHeigth      Float     @db.Float
-  irrigation     String    @db.VarChar(255)
-  sunLight       SunLight  @default(sol_directo)
-  sowingSeason   String    @db.VarChar(255)
-  harvestSeason  String    @db.VarChar(255)
-  description    String    @db.Text
-  imageURL       String    @db.VarChar(255)
+  id             Int         @id @default(autoincrement())
+  commonName     String      @db.VarChar(255)
+  scientificName String      @db.VarChar(255)
+  family         String      @db.VarChar(255)
+  type           PlantType   @default(hierba)
+  lifeCycle      LifeCycle   @default(anual)
+  climate        String      @db.VarChar(255)
+  maxHeigth      Float       @db.Float
+  minHeigth      Float       @db.Float
+  irrigation     String      @db.VarChar(255)
+  sunLight       SunLight    @default(sol_directo)
+  sowingSeason   String      @db.VarChar(255)
+  harvestSeason  String      @db.VarChar(255)
+  description    String      @db.Text
+  imageURL       String      @db.VarChar(255)
+  users          PlantUser[]
+}
+
+model PlantUser {
+  id       Int                @id @default(autoincrement())
+  userId   Int
+  plantId  Int
+  User     User               @relation(fields: [userId], references: [id])
+  Plant    Plant              @relation(fields: [plantId], references: [id])
+  addedAt  DateTime           @default(now())
+  name     String             @default("Mi planta") @db.VarChar(255)
+  states   PlantState[]
+  missions PlantUserMission[]
+}
+
+model PlantState {
+  id           Int       @id @default(autoincrement())
+  plantUserId  Int
+  type         StateType @default(water) // Tipo de estado
+  currentLevel Int       @default(0) // Nivel actual del estado
+  maxLevel     Int // Nivel máximo para completar el estado
+  updatedAt    DateTime  @updatedAt // Fecha de última actualización
+  PlantUser    PlantUser @relation(fields: [plantUserId], references: [id])
+}
+
+enum StateType {
+  water
+  sunlight
+  fertilizer
+  temperature
+}
+
+model Mission {
+  id                Int                @id @default(autoincrement())
+  name              String // Nombre de la misión (ej: "Regar la planta")
+  description       String // Descripción de lo que implica la misión
+  daysToUnlock      Int // Días desde la plantación para desbloquear esta misión
+  PlantUserMissions PlantUserMission[]
+}
+
+model PlantUserMission {
+  id          Int           @id @default(autoincrement())
+  plantUserId Int
+  missionId   Int
+  unlockedAt  DateTime? // Cuándo se desbloqueó la misión para esta planta en particular
+  status      MissionStatus @default(pending)
+  progress    Int           @default(0) // Progreso de la misión
+  completedAt DateTime?
+  PlantUser   PlantUser     @relation(fields: [plantUserId], references: [id])
+  Mission     Mission       @relation(fields: [missionId], references: [id])
+}
+
+enum MissionStatus {
+  pending
+  completed
+  failed
+}
+
+model Notification {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  message String   @db.Text
+  sentAt  DateTime @default(now())
+  User    User     @relation(fields: [userId], references: [id])
 }
 
 enum SunLight {
