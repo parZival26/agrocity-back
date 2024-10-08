@@ -51,7 +51,9 @@ export class PlantService {
       } else if (error instanceof HttpException) {
         throw error;
       }
+      console.error(error);
       throw new HttpException('Internal server error', 500);
+      
     }
   } 
 

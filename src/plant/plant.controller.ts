@@ -3,6 +3,7 @@ import { PlantService } from './plant.service';
 import { UserPlantDto } from './dto/user-plant.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
+import { UserPlantArrayDto } from './dto/user-plant-array.dto';
 
 @Controller('plant')
 export class PlantController {
@@ -10,9 +11,9 @@ export class PlantController {
 
   @Post('userPlant/')
   @UseGuards(JwtAuthGuard)
-  create(@Body(new ValidationPipe()) userPlantDto: UserPlantDto[], @Req() req: Request) {    
+  create(@Body(new ValidationPipe()) userPlantDto: UserPlantArrayDto, @Req() req: Request) {    
     const userId = req.user['id'];
-    return this.plantService.addUserPlants(userId, userPlantDto);
+    return this.plantService.addUserPlants(userId, userPlantDto.userPlants);
   }
 
   @Get('userPlant/')
