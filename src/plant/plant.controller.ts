@@ -22,4 +22,13 @@ export class PlantController {
     const userId = req.user['id'];
     return this.plantService.getUserPlants(userId);
   }
+
+  @Get('userPlant/:id')
+  @UseGuards(JwtAuthGuard)
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const userId = req.user['id'];
+    return this.plantService.getUserPlant(userId, +id);
+  }
+
+  
 }

@@ -40,6 +40,7 @@ model Plant {
   harvestSeason  String      @db.VarChar(255)
   description    String      @db.Text
   imageURL       String      @db.VarChar(255)
+  missions       Mission[]
   users          PlantUser[]
 }
 
@@ -77,6 +78,8 @@ model Mission {
   name              String // Nombre de la misión (ej: "Regar la planta")
   description       String // Descripción de lo que implica la misión
   daysToUnlock      Int // Días desde la plantación para desbloquear esta misión
+  plant_id          Int
+  Plant             Plant              @relation(fields: [plant_id], references: [id])
   PlantUserMissions PlantUserMission[]
 }
 
@@ -85,7 +88,7 @@ model PlantUserMission {
   plantUserId Int
   missionId   Int
   unlockedAt  DateTime? // Cuándo se desbloqueó la misión para esta planta en particular
-  status      MissionStatus @default(pending)
+  status      MissionStatus @default(blocked)
   progress    Int           @default(0) // Progreso de la misión
   completedAt DateTime?
   PlantUser   PlantUser     @relation(fields: [plantUserId], references: [id])
@@ -96,6 +99,7 @@ enum MissionStatus {
   pending
   completed
   failed
+  blocked
 }
 
 model Notification {
